@@ -540,6 +540,161 @@
       color: #666;
     }
 
+    /* ---- V2: gradient + glow ---- */
+    .promo-banner.v2 {
+      background: linear-gradient(160deg, #0f0c29 0%, #1a1040 50%, #0d1f3c 100%);
+      overflow: hidden;
+    }
+
+    .promo-banner.v2::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+      background-size: 32px 32px;
+      pointer-events: none;
+    }
+
+    .promo-glow {
+      display: none;
+      position: absolute;
+      top: -20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 200px;
+      height: 200px;
+      background: radial-gradient(circle, rgba(255,140,0,0.28) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .promo-banner.v2 .promo-glow {
+      display: block;
+    }
+
+    .promo-banner.v2 .promo-img-inner {
+      filter: drop-shadow(0 -10px 28px rgba(255,140,0,0.5));
+      animation: imgBounceIn 0.7s 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+    }
+
+    @keyframes imgBounceIn {
+      0%   { transform: translateX(-50%) translateY(30px) scale(0.85); opacity: 0; }
+      100% { transform: translateX(-50%) translateY(0)    scale(1);    opacity: 1; }
+    }
+
+    /* ---- V3: urgency ---- */
+    .promo-urgency {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+
+    .promo-banner.v3 .promo-urgency {
+      display: flex;
+    }
+
+    .urgency-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #f97316;
+      animation: pulse-dot 1.2s ease-in-out infinite;
+    }
+
+    @keyframes pulse-dot {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50%       { transform: scale(1.5); opacity: 0.6; }
+    }
+
+    .urgency-text {
+      font-size: 12px;
+      font-weight: 600;
+      color: #f97316;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .promo-banner.v3 .btn-learn-more {
+      background: linear-gradient(90deg, #f97316, #ea580c);
+      font-weight: 800;
+    }
+
+    .promo-banner.v3 .btn-learn-more:hover {
+      background: linear-gradient(90deg, #ea580c, #c2410c);
+    }
+
+    /* Countdown row for v3 */
+    .promo-countdown-row {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .promo-banner.v3 .promo-countdown { display: none; }
+    .promo-banner.v3 .promo-countdown-row { display: flex; }
+
+    .countdown-timer {
+      font-size: 15px;
+      font-weight: 700;
+      color: #fff;
+      background: rgba(255,255,255,0.1);
+      border-radius: 8px;
+      padding: 2px 10px;
+      min-width: 32px;
+      text-align: center;
+    }
+
+    .countdown-label {
+      font-size: 12px;
+      color: #666;
+    }
+
+    /* ---- Variant picker ---- */
+    .variant-picker {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+
+    .variant-picker-label {
+      font-size: 11px;
+      color: #555;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+    }
+
+    .variant-tabs {
+      display: flex;
+      background: #222;
+      border-radius: 10px;
+      padding: 3px;
+      gap: 2px;
+    }
+
+    .variant-tab {
+      padding: 5px 14px;
+      border-radius: 8px;
+      border: none;
+      background: transparent;
+      color: #555;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .variant-tab.active {
+      background: #3a3a3a;
+      color: #fff;
+    }
+
     /* Google Pay logo */
     .gpay-logo {
       font-size: 18px;
@@ -560,6 +715,16 @@
 
 <div class="page">
   <div class="header">MRGSWebTest</div>
+
+  <!-- Variant picker -->
+  <div class="variant-picker">
+    <span class="variant-picker-label">Banner</span>
+    <div class="variant-tabs">
+      <button class="variant-tab active" onclick="selectVariant(1, this)">V1</button>
+      <button class="variant-tab" onclick="selectVariant(2, this)">V2</button>
+      <button class="variant-tab" onclick="selectVariant(3, this)">V3</button>
+    </div>
+  </div>
 
   <!-- Product Banner -->
   <div class="product-banner" onclick="toggleBanner()">
@@ -661,12 +826,17 @@
 
 <!-- Promo Banner -->
 <div class="promo-banner" id="promoBanner">
+  <div class="promo-glow"></div>
   <div class="promo-img-wrap">
     <img class="promo-img-inner" src="https://market.my.games/s3/media/2024/2/5/948c136d6f04deb375ee67e4a203209d.png" alt="War Robots offer" />
   </div>
+  <div class="promo-urgency">
+    <div class="urgency-dot"></div>
+    <span class="urgency-text">Limited offer</span>
+  </div>
   <div class="promo-title">Check out best offers in the<br>War Robots' Official Webshop</div>
-  <button class="btn-learn-more" onclick="promoDone()">
-    Learn more
+  <button class="btn-learn-more" id="btnLearnMore" onclick="promoDone()">
+    <span id="btnLearnMoreText">Learn more</span>
     <span class="btn-arrow">
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
         <path d="M2 7h10M8 3l4 4-4 4" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
@@ -674,9 +844,24 @@
     </span>
   </button>
   <div class="promo-countdown" id="promoCountdown">Returning to game in 10 sec…</div>
+  <div class="promo-countdown-row">
+    <span class="countdown-label">Returning to game in</span>
+    <span class="countdown-timer" id="promoCountdownV3">10</span>
+    <span class="countdown-label">sec</span>
+  </div>
 </div>
 
 <script>
+  let selectedVariant = 1;
+  let promoTimer = null;
+
+  // --- Variant picker ---
+  function selectVariant(v, btn) {
+    selectedVariant = v;
+    document.querySelectorAll('.variant-tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+  }
+
   // --- Toggle banner chevron ---
   function toggleBanner() {
     document.getElementById('bannerChevron').classList.toggle('open');
@@ -701,8 +886,6 @@
   }
 
   // --- Payment flow ---
-  let promoTimer = null;
-
   function startPayment() {
     const page = document.querySelector('.page');
     page.innerHTML = `
@@ -728,20 +911,33 @@
         <div class="success-sub">Your payment of $0.50 has been<br>processed successfully.</div>
       </div>
     `;
-    // Show promo banner after short delay
     setTimeout(showPromoBanner, 600);
   }
 
   function showPromoBanner() {
     const banner = document.getElementById('promoBanner');
+
+    // Apply variant class
+    banner.classList.remove('v2', 'v3');
+    if (selectedVariant === 2) banner.classList.add('v2');
+    if (selectedVariant === 3) banner.classList.add('v3');
+
+    // Set button label
+    document.getElementById('btnLearnMoreText').textContent =
+      selectedVariant === 3 ? 'Claim your bonus' : 'Learn more';
+
     banner.classList.add('visible');
+
     let secs = 10;
-    const label = document.getElementById('promoCountdown');
-    label.textContent = `Returning to game in ${secs} sec…`;
+    const label   = document.getElementById('promoCountdown');
+    const labelV3 = document.getElementById('promoCountdownV3');
+    label.textContent   = `Returning to game in ${secs} sec…`;
+    labelV3.textContent = secs;
 
     promoTimer = setInterval(() => {
       secs--;
-      label.textContent = `Returning to game in ${secs} sec…`;
+      label.textContent   = `Returning to game in ${secs} sec…`;
+      labelV3.textContent = secs;
       if (secs <= 0) {
         clearInterval(promoTimer);
         location.reload();
