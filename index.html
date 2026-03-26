@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>MRGSWebTest — Payment</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #1a1a1a;
+      color: #fff;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+    }
+
+    .page {
+      width: 100%;
+      max-width: 390px;
+      padding: 20px 16px 40px;
+    }
+
+    /* Header */
+    .header {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+
+    /* Product banner */
+    .product-banner {
+      background: linear-gradient(135deg, #3b5de7 0%, #7c3aed 100%);
+      border-radius: 20px;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 24px;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .product-banner img {
+      width: 56px;
+      height: 56px;
+      border-radius: 10px;
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+
+    .product-img-placeholder {
+      width: 56px;
+      height: 56px;
+      border-radius: 10px;
+      flex-shrink: 0;
+      background: linear-gradient(135deg, #e94560, #f97316);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+    }
+
+    .product-info {
+      flex: 1;
+    }
+
+    .product-name {
+      font-size: 13px;
+      opacity: 0.9;
+      margin-bottom: 4px;
+    }
+
+    .product-price {
+      font-size: 22px;
+      font-weight: 700;
+    }
+
+    .banner-chevron {
+      width: 36px;
+      height: 36px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: transform 0.3s;
+    }
+
+    .banner-chevron svg {
+      transition: transform 0.3s;
+    }
+
+    .banner-chevron.open svg {
+      transform: rotate(180deg);
+    }
+
+    /* Pay with card */
+    .section-title {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .card-fields {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .field-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    .input-wrap {
+      position: relative;
+      flex: 1;
+    }
+
+    .input-wrap input {
+      width: 100%;
+      background: #2a2a2a;
+      border: 1px solid #3a3a3a;
+      border-radius: 12px;
+      padding: 14px 16px;
+      color: #fff;
+      font-size: 15px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .input-wrap input::placeholder {
+      color: #666;
+    }
+
+    .input-wrap input:focus {
+      border-color: #5b6ef7;
+    }
+
+    .card-icon {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      opacity: 0.5;
+    }
+
+    /* Save card toggle */
+    .save-card {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .toggle {
+      width: 50px;
+      height: 28px;
+      background: #444;
+      border-radius: 14px;
+      position: relative;
+      cursor: pointer;
+      transition: background 0.2s;
+      flex-shrink: 0;
+    }
+
+    .toggle.on {
+      background: #5b6ef7;
+    }
+
+    .toggle::after {
+      content: '';
+      position: absolute;
+      width: 22px;
+      height: 22px;
+      background: #fff;
+      border-radius: 50%;
+      top: 3px;
+      left: 3px;
+      transition: transform 0.2s;
+    }
+
+    .toggle.on::after {
+      transform: translateX(22px);
+    }
+
+    .save-card span {
+      font-size: 14px;
+      color: #ccc;
+    }
+
+    /* Pay button */
+    .btn-pay {
+      width: 100%;
+      background: #2e2e2e;
+      color: #fff;
+      border: none;
+      border-radius: 28px;
+      padding: 18px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-bottom: 20px;
+      transition: background 0.2s, transform 0.1s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .btn-pay:hover { background: #3a3a3a; }
+    .btn-pay:active { transform: scale(0.98); }
+
+    /* Divider */
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .divider::before,
+    .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: #333;
+    }
+
+    .divider span {
+      font-size: 13px;
+      color: #666;
+    }
+
+    /* Alt payment buttons */
+    .btn-alt {
+      width: 100%;
+      background: #fff;
+      color: #000;
+      border: none;
+      border-radius: 28px;
+      padding: 16px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: opacity 0.2s, transform 0.1s;
+    }
+
+    .btn-alt:active { transform: scale(0.98); }
+
+    .btn-alt.gpay {
+      gap: 0;
+    }
+
+    .gpay-inner {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .gpay-divider {
+      width: 1px;
+      height: 24px;
+      background: #ddd;
+      margin: 0 10px;
+    }
+
+    .wallet-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #f97316, #f59e0b);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+    }
+
+    .add-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      border: 1.5px solid #999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #555;
+      font-size: 18px;
+      font-weight: 300;
+    }
+
+    /* More options */
+    .btn-more {
+      width: 100%;
+      background: #2a2a2a;
+      color: #fff;
+      border: none;
+      border-radius: 28px;
+      padding: 16px;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: background 0.2s;
+    }
+
+    .btn-more:hover { background: #333; }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+    }
+
+    .secure-badge {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      font-size: 12px;
+      color: #888;
+      margin-bottom: 10px;
+    }
+
+    .legal-text {
+      font-size: 11px;
+      color: #555;
+      line-height: 1.5;
+      margin-bottom: 10px;
+    }
+
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+    }
+
+    .footer-links a {
+      font-size: 12px;
+      color: #5b9cf6;
+      text-decoration: none;
+    }
+
+    /* ===== INLINE STATES ===== */
+    .state-spinner,
+    .state-success {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      min-height: 60vh;
+      padding: 40px 0;
+    }
+
+    /* Spinner */
+    .spinner {
+      width: 56px;
+      height: 56px;
+      border: 4px solid #333;
+      border-top-color: #5b6ef7;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .modal-label {
+      font-size: 15px;
+      color: #aaa;
+    }
+
+    /* Success state */
+    .success-icon {
+      width: 64px;
+      height: 64px;
+      background: #22c55e;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes pop {
+      0% { transform: scale(0); }
+      100% { transform: scale(1); }
+    }
+
+    .success-icon svg {
+      width: 32px;
+      height: 32px;
+    }
+
+    .success-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .success-sub {
+      font-size: 13px;
+      color: #888;
+      text-align: center;
+    }
+
+    .btn-done {
+      margin-top: 8px;
+      width: 200px;
+      background: #5b6ef7;
+      color: #fff;
+      border: none;
+      border-radius: 20px;
+      padding: 14px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-done:hover { background: #4a5de6; }
+
+    /* ===== PROMO BANNER ===== */
+    .promo-banner {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%) translateY(calc(100% + 200px));
+      width: 100%;
+      max-width: 390px;
+      background: #0d0d0d;
+      border-radius: 24px 24px 0 0;
+      padding: 0 20px 28px;
+      transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+      z-index: 50;
+    }
+
+    .promo-banner.visible {
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .promo-img-wrap {
+      position: relative;
+      height: 110px;
+      margin-bottom: 8px;
+      overflow: visible;
+    }
+
+    .promo-img-inner {
+      position: absolute;
+      bottom: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 200px;
+      height: 180px;
+      object-fit: contain;
+      filter: drop-shadow(0 -10px 24px rgba(255,140,0,0.35));
+    }
+
+    .promo-title {
+      font-size: 20px;
+      font-weight: 800;
+      color: #fff;
+      text-align: center;
+      line-height: 1.3;
+      margin-bottom: 18px;
+    }
+
+    /* CTA button with shimmer */
+    .btn-learn-more {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      background: #3a7bd5;
+      color: #fff;
+      border: none;
+      border-radius: 28px;
+      padding: 16px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-bottom: 12px;
+      position: relative;
+      overflow: hidden;
+      transition: background 0.2s, transform 0.1s;
+    }
+
+    .btn-learn-more:hover { background: #2f6bc0; }
+    .btn-learn-more:active { transform: scale(0.98); }
+
+    /* Shimmer sweep */
+    .btn-learn-more::after {
+      content: '';
+      position: absolute;
+      top: 0; left: -75%;
+      width: 50%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+      transform: skewX(-20deg);
+      animation: shimmer 2.4s ease-in-out infinite;
+    }
+
+    @keyframes shimmer {
+      0%        { left: -75%; }
+      60%, 100% { left: 125%; }
+    }
+
+    /* Arrow wiggle */
+    .btn-arrow {
+      display: inline-flex;
+      animation: wiggle 2.4s ease-in-out infinite;
+    }
+
+    @keyframes wiggle {
+      0%, 60%, 100% { transform: translateX(0); }
+      70%            { transform: translateX(4px); }
+      80%            { transform: translateX(-2px); }
+      90%            { transform: translateX(4px); }
+    }
+
+    .promo-countdown {
+      text-align: center;
+      font-size: 12px;
+      color: #666;
+    }
+
+    /* Google Pay logo */
+    .gpay-logo {
+      font-size: 18px;
+      font-weight: 500;
+      letter-spacing: -0.5px;
+    }
+
+    .gpay-logo .g { color: #4285f4; }
+    .gpay-logo .o1 { color: #ea4335; }
+    .gpay-logo .o2 { color: #fbbc05; }
+    .gpay-logo .g2 { color: #34a853; }
+    .gpay-logo .l { color: #4285f4; }
+    .gpay-logo .e { color: #ea4335; }
+    .gpay-logo .pay { color: #000; font-weight: 600; }
+  </style>
+</head>
+<body>
+
+<div class="page">
+  <div class="header">MRGSWebTest</div>
+
+  <!-- Product Banner -->
+  <div class="product-banner" onclick="toggleBanner()">
+    <div class="product-img-placeholder">👢</div>
+    <div class="product-info">
+      <div class="product-name">Весна пришла test 1 шт</div>
+      <div class="product-price">$ 0.50</div>
+    </div>
+    <div class="banner-chevron" id="bannerChevron">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <path d="M4 6l4 4 4-4" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Card Payment -->
+  <div class="section-title">Pay with card</div>
+  <div class="card-fields">
+    <div class="input-wrap">
+      <input type="text" placeholder="Номер карты" inputmode="numeric" maxlength="19" id="cardNumber" oninput="formatCard(this)" />
+      <div class="card-icon">
+        <svg width="28" height="20" viewBox="0 0 28 20" fill="none">
+          <rect width="28" height="20" rx="3" fill="#333"/>
+          <rect y="5" width="28" height="5" fill="#555"/>
+          <rect x="4" y="13" width="8" height="3" rx="1" fill="#777"/>
+        </svg>
+      </div>
+    </div>
+    <div class="field-row">
+      <div class="input-wrap">
+        <input type="text" placeholder="MM/YY" inputmode="numeric" maxlength="5" id="expiry" oninput="formatExpiry(this)" />
+      </div>
+      <div class="input-wrap">
+        <input type="text" placeholder="CVV" inputmode="numeric" maxlength="3" />
+      </div>
+    </div>
+  </div>
+
+  <!-- Save card toggle -->
+  <div class="save-card">
+    <div class="toggle" id="saveToggle" onclick="toggleSave()"></div>
+    <span>Save card for faster checkout</span>
+  </div>
+
+  <!-- Pay button -->
+  <button class="btn-pay" onclick="startPayment()">
+    Pay $0.50
+  </button>
+
+  <!-- Divider -->
+  <div class="divider"><span>or</span></div>
+
+  <!-- Google Pay -->
+  <button class="btn-alt gpay">
+    <div class="gpay-inner">
+      <span class="gpay-logo">
+        <span class="g">G</span><span class="o1">o</span><span class="o2">o</span><span class="g2">g</span><span class="l">l</span><span class="e">e </span><span class="pay">Pay</span>
+      </span>
+      <div class="gpay-divider"></div>
+      <div class="wallet-icon">🎃</div>
+      <div class="add-icon">+</div>
+    </div>
+  </button>
+
+  <!-- PayPal -->
+  <button class="btn-alt">
+    <svg width="80" height="20" viewBox="0 0 80 20" fill="none">
+      <text x="0" y="16" font-family="Arial" font-size="16" font-weight="900" font-style="italic" fill="#003087">Pay</text>
+      <text x="28" y="16" font-family="Arial" font-size="16" font-weight="900" font-style="italic" fill="#009cde">Pal</text>
+    </svg>
+  </button>
+
+  <!-- More options -->
+  <button class="btn-more">
+    More payment options
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+      <path d="M4 6l4 4 4-4" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </button>
+
+  <!-- Footer -->
+  <div class="footer">
+    <div class="secure-badge">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <path d="M7 1L2 3v4c0 3 2.5 5.5 5 6 2.5-.5 5-3 5-6V3L7 1z" stroke="#888" stroke-width="1.2" fill="none"/>
+        <path d="M4.5 7l1.8 1.8L9.5 5.5" stroke="#888" stroke-width="1.2" stroke-linecap="round"/>
+      </svg>
+      Secure connection. Your data is protected.
+    </div>
+    <p class="legal-text">
+      By proceeding with the payment, you request immediate performance of the agreement and acknowledge that you lose your right of withdrawal.
+    </p>
+    <div class="footer-links">
+      <a href="#">Privacy Policy</a>
+      <a href="#">EULA</a>
+    </div>
+  </div>
+</div>
+
+<!-- Promo Banner -->
+<div class="promo-banner" id="promoBanner">
+  <div class="promo-img-wrap">
+    <img class="promo-img-inner" src="https://market.my.games/s3/media/2024/2/5/948c136d6f04deb375ee67e4a203209d.png" alt="War Robots offer" />
+  </div>
+  <div class="promo-title">Check out best offers in the<br>War Robots' Official Webshop</div>
+  <button class="btn-learn-more" onclick="promoDone()">
+    Learn more
+    <span class="btn-arrow">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <path d="M2 7h10M8 3l4 4-4 4" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </span>
+  </button>
+  <div class="promo-countdown" id="promoCountdown">Returning to game in 10 sec…</div>
+</div>
+
+<script>
+  // --- Toggle banner chevron ---
+  function toggleBanner() {
+    document.getElementById('bannerChevron').classList.toggle('open');
+  }
+
+  // --- Toggle save card ---
+  function toggleSave() {
+    document.getElementById('saveToggle').classList.toggle('on');
+  }
+
+  // --- Card number formatting ---
+  function formatCard(el) {
+    let v = el.value.replace(/\D/g, '').slice(0, 16);
+    el.value = v.replace(/(.{4})/g, '$1 ').trim();
+  }
+
+  // --- Expiry formatting ---
+  function formatExpiry(el) {
+    let v = el.value.replace(/\D/g, '').slice(0, 4);
+    if (v.length >= 3) v = v.slice(0,2) + '/' + v.slice(2);
+    el.value = v;
+  }
+
+  // --- Payment flow ---
+  let promoTimer = null;
+
+  function startPayment() {
+    const page = document.querySelector('.page');
+    page.innerHTML = `
+      <div class="header">MRGSWebTest</div>
+      <div class="state-spinner">
+        <div class="spinner"></div>
+        <div class="modal-label">Processing payment…</div>
+      </div>
+    `;
+    setTimeout(() => showSuccess(page), 2000);
+  }
+
+  function showSuccess(page) {
+    page.innerHTML = `
+      <div class="header">MRGSWebTest</div>
+      <div class="state-success">
+        <div class="success-icon">
+          <svg viewBox="0 0 32 32" fill="none" width="32" height="32">
+            <path d="M7 16l6 6 12-12" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="success-title">Payment Successful</div>
+        <div class="success-sub">Your payment of $0.50 has been<br>processed successfully.</div>
+      </div>
+    `;
+    // Show promo banner after short delay
+    setTimeout(showPromoBanner, 600);
+  }
+
+  function showPromoBanner() {
+    const banner = document.getElementById('promoBanner');
+    banner.classList.add('visible');
+    let secs = 10;
+    const label = document.getElementById('promoCountdown');
+    label.textContent = `Returning to game in ${secs} sec…`;
+
+    promoTimer = setInterval(() => {
+      secs--;
+      label.textContent = `Returning to game in ${secs} sec…`;
+      if (secs <= 0) {
+        clearInterval(promoTimer);
+        location.reload();
+      }
+    }, 1000);
+  }
+
+  function promoDone() {
+    clearInterval(promoTimer);
+    window.open('https://market.my.games/games/163', '_blank');
+    location.reload();
+  }
+</script>
+</body>
+</html>
