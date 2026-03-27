@@ -966,6 +966,9 @@
   const DEFAULT_IMG = 'https://market.my.games/s3/media/2024/2/5/948c136d6f04deb375ee67e4a203209d.png';
   let customImgSrc = null;
 
+  // Store colors in variables so they survive page innerHTML replacement
+  let v3Colors = { btn: '#f97316', text: '#ffffff', urgency: '#f97316' };
+
   function loadLocalImage(input) {
     if (!input.files || !input.files[0]) return;
     const reader = new FileReader();
@@ -987,19 +990,21 @@
   }
 
   function applyV3Colors() {
-    const btnColor    = document.getElementById('clrBtn').value;
-    const textColor   = document.getElementById('clrBtnText').value;
-    const urgColor    = document.getElementById('clrUrgency').value;
+    // Read from DOM if pickers are still present, otherwise use stored values
+    const clrBtn  = document.getElementById('clrBtn');
+    const clrText = document.getElementById('clrBtnText');
+    const clrUrg  = document.getElementById('clrUrgency');
+    if (clrBtn)  v3Colors.btn     = clrBtn.value;
+    if (clrText) v3Colors.text    = clrText.value;
+    if (clrUrg)  v3Colors.urgency = clrUrg.value;
+
     const btn         = document.getElementById('btnLearnMore');
     const urgencyDot  = document.querySelector('.urgency-dot');
     const urgencyText = document.querySelector('.urgency-text');
 
-    if (btn) {
-      btn.style.background = btnColor;
-      btn.style.color = textColor;
-    }
-    if (urgencyDot)  urgencyDot.style.background = urgColor;
-    if (urgencyText) urgencyText.style.color = urgColor;
+    if (btn) { btn.style.background = v3Colors.btn; btn.style.color = v3Colors.text; }
+    if (urgencyDot)  urgencyDot.style.background = v3Colors.urgency;
+    if (urgencyText) urgencyText.style.color      = v3Colors.urgency;
   }
 
   // --- Toggle banner chevron ---
