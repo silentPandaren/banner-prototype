@@ -438,19 +438,24 @@
     .promo-banner {
       position: fixed;
       bottom: 0;
-      left: 50%;
-      transform: translateX(-50%) translateY(calc(100% + 200px));
-      width: 100%;
-      max-width: 390px;
+      left: 0;
+      right: 0;
+      transform: translateY(calc(100% + 200px));
       background: #0d0d0d;
       border-radius: 24px 24px 0 0;
-      padding: 0 20px 28px;
+      padding: 0 0 28px;
       transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
       z-index: 50;
     }
 
     .promo-banner.visible {
-      transform: translateX(-50%) translateY(0);
+      transform: translateY(0);
+    }
+
+    .promo-banner-inner {
+      max-width: 390px;
+      margin: 0 auto;
+      padding: 0 20px;
     }
 
     .promo-img-wrap {
@@ -825,28 +830,30 @@
 
 <!-- Promo Banner -->
 <div class="promo-banner" id="promoBanner">
-  <div class="promo-glow"></div>
-  <div class="promo-img-wrap">
-    <img class="promo-img-inner" src="https://market.my.games/s3/media/2024/2/5/948c136d6f04deb375ee67e4a203209d.png" alt="War Robots offer" />
-  </div>
-  <div class="promo-urgency">
-    <div class="urgency-dot"></div>
-    <span class="urgency-text">Limited offer</span>
-  </div>
-  <div class="promo-title">Check out best offers in the<br>War Robots' Official Webshop</div>
-  <button class="btn-learn-more" id="btnLearnMore" onclick="promoDone()">
-    <span id="btnLearnMoreText">Learn more</span>
-    <span class="btn-arrow">
-      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-        <path d="M2 7h10M8 3l4 4-4 4" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-    </span>
-  </button>
-  <div class="promo-countdown" id="promoCountdown">Returning to game in 10 sec…</div>
-  <div class="promo-countdown-row">
-    <span class="countdown-label">Returning to game in</span>
-    <span class="countdown-timer" id="promoCountdownV3">10</span>
-    <span class="countdown-label">sec</span>
+  <div class="promo-banner-inner">
+    <div class="promo-glow"></div>
+    <div class="promo-img-wrap">
+      <img class="promo-img-inner" src="https://market.my.games/s3/media/2024/2/5/948c136d6f04deb375ee67e4a203209d.png" alt="War Robots offer" />
+    </div>
+    <div class="promo-urgency">
+      <div class="urgency-dot"></div>
+      <span class="urgency-text">Limited offer</span>
+    </div>
+    <div class="promo-title">Check out best offers in the<br>War Robots' Official Webshop</div>
+    <button class="btn-learn-more" id="btnLearnMore" onclick="promoDone()">
+      <span id="btnLearnMoreText">Learn more</span>
+      <span class="btn-arrow">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <path d="M2 7h10M8 3l4 4-4 4" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>
+    </button>
+    <div class="promo-countdown" id="promoCountdown">Returning to game in 10 sec…</div>
+    <div class="promo-countdown-row">
+      <span class="countdown-label">Returning to game in</span>
+      <span class="countdown-timer" id="promoCountdownV3">10</span>
+      <span class="countdown-label">sec</span>
+    </div>
   </div>
 </div>
 
