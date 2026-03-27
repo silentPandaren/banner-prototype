@@ -699,6 +699,42 @@
       color: #fff;
     }
 
+    /* Image upload row */
+    .img-upload-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .btn-upload {
+      font-size: 12px;
+      font-weight: 600;
+      color: #aaa;
+      background: #222;
+      border-radius: 8px;
+      padding: 5px 12px;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+      white-space: nowrap;
+    }
+
+    .btn-upload:hover { background: #2e2e2e; color: #fff; }
+
+    #imgUpload { display: none; }
+
+    .btn-reset-img {
+      background: none;
+      border: none;
+      color: #555;
+      font-size: 14px;
+      cursor: pointer;
+      padding: 2px 4px;
+      transition: color 0.15s;
+    }
+
+    .btn-reset-img:hover { color: #fff; }
+
     /* V3 color pickers */
     .v3-controls {
       display: none;
@@ -762,6 +798,14 @@
       <button class="variant-tab" onclick="selectVariant(2, this)">V2</button>
       <button class="variant-tab" onclick="selectVariant(3, this)">V3</button>
     </div>
+  </div>
+
+  <!-- Image upload (all variants) -->
+  <div class="img-upload-row">
+    <label class="variant-picker-label">Image</label>
+    <label class="btn-upload" for="imgUpload">Choose file</label>
+    <input type="file" id="imgUpload" accept="image/*" onchange="loadLocalImage(this)" />
+    <button class="btn-reset-img" id="btnResetImg" onclick="resetImage()" style="display:none">✕</button>
   </div>
 
   <!-- V3 color controls -->
@@ -917,6 +961,29 @@
     document.querySelectorAll('.variant-tab').forEach(t => t.classList.remove('active'));
     btn.classList.add('active');
     document.getElementById('v3Controls').classList.toggle('visible', v === 3);
+  }
+
+  const DEFAULT_IMG = 'https://market.my.games/s3/media/2024/2/5/948c136d6f04deb375ee67e4a203209d.png';
+  let customImgSrc = null;
+
+  function loadLocalImage(input) {
+    if (!input.files || !input.files[0]) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      customImgSrc = e.target.result;
+      document.querySelector('.promo-img-inner').src = customImgSrc;
+      document.getElementById('btnResetImg').style.display = 'inline';
+      document.querySelector('.btn-upload').textContent = input.files[0].name.slice(0, 16) + (input.files[0].name.length > 16 ? '…' : '');
+    };
+    reader.readAsDataURL(input.files[0]);
+  }
+
+  function resetImage() {
+    customImgSrc = null;
+    document.querySelector('.promo-img-inner').src = DEFAULT_IMG;
+    document.getElementById('imgUpload').value = '';
+    document.getElementById('btnResetImg').style.display = 'none';
+    document.querySelector('.btn-upload').textContent = 'Choose file';
   }
 
   function applyV3Colors() {
