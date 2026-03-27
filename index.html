@@ -699,6 +699,40 @@
       color: #fff;
     }
 
+    /* V3 color pickers */
+    .v3-controls {
+      display: none;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 20px;
+      padding: 12px;
+      background: #1e1e1e;
+      border-radius: 12px;
+    }
+
+    .v3-controls.visible { display: flex; }
+
+    .color-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .color-row label {
+      font-size: 12px;
+      color: #888;
+    }
+
+    .color-row input[type="color"] {
+      width: 36px;
+      height: 24px;
+      border: none;
+      border-radius: 6px;
+      padding: 0;
+      cursor: pointer;
+      background: none;
+    }
+
     /* Google Pay logo */
     .gpay-logo {
       font-size: 18px;
@@ -727,6 +761,22 @@
       <button class="variant-tab active" onclick="selectVariant(1, this)">V1</button>
       <button class="variant-tab" onclick="selectVariant(2, this)">V2</button>
       <button class="variant-tab" onclick="selectVariant(3, this)">V3</button>
+    </div>
+  </div>
+
+  <!-- V3 color controls -->
+  <div class="v3-controls" id="v3Controls">
+    <div class="color-row">
+      <label>Button color</label>
+      <input type="color" id="clrBtn" value="#f97316" oninput="applyV3Colors()" />
+    </div>
+    <div class="color-row">
+      <label>Button text</label>
+      <input type="color" id="clrBtnText" value="#ffffff" oninput="applyV3Colors()" />
+    </div>
+    <div class="color-row">
+      <label>Limited offer</label>
+      <input type="color" id="clrUrgency" value="#f97316" oninput="applyV3Colors()" />
     </div>
   </div>
 
@@ -866,6 +916,23 @@
     selectedVariant = v;
     document.querySelectorAll('.variant-tab').forEach(t => t.classList.remove('active'));
     btn.classList.add('active');
+    document.getElementById('v3Controls').classList.toggle('visible', v === 3);
+  }
+
+  function applyV3Colors() {
+    const btnColor    = document.getElementById('clrBtn').value;
+    const textColor   = document.getElementById('clrBtnText').value;
+    const urgColor    = document.getElementById('clrUrgency').value;
+    const btn         = document.getElementById('btnLearnMore');
+    const urgencyDot  = document.querySelector('.urgency-dot');
+    const urgencyText = document.querySelector('.urgency-text');
+
+    if (btn) {
+      btn.style.background = btnColor;
+      btn.style.color = textColor;
+    }
+    if (urgencyDot)  urgencyDot.style.background = urgColor;
+    if (urgencyText) urgencyText.style.color = urgColor;
   }
 
   // --- Toggle banner chevron ---
@@ -931,6 +998,9 @@
     // Set button label
     document.getElementById('btnLearnMoreText').textContent =
       selectedVariant === 3 ? 'Claim your bonus' : 'Learn more';
+
+    // Apply custom colors for V3
+    if (selectedVariant === 3) applyV3Colors();
 
     banner.classList.add('visible');
 
