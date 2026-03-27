@@ -735,6 +735,29 @@
 
     .btn-reset-img:hover { color: #fff; }
 
+    /* Language picker */
+    .lang-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .lang-select {
+      flex: 1;
+      background: #222;
+      color: #aaa;
+      border: none;
+      border-radius: 8px;
+      padding: 5px 10px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      outline: none;
+    }
+
+    .lang-select:focus { color: #fff; }
+
     /* V3 color pickers */
     .v3-controls {
       display: none;
@@ -798,6 +821,28 @@
       <button class="variant-tab" onclick="selectVariant(2, this)">V2</button>
       <button class="variant-tab" onclick="selectVariant(3, this)">V3</button>
     </div>
+  </div>
+
+  <!-- Language picker -->
+  <div class="lang-row">
+    <span class="variant-picker-label">Lang</span>
+    <select class="lang-select" id="langSelect" onchange="applyLang()">
+      <option value="en">English</option>
+      <option value="fr">Français</option>
+      <option value="es">Español</option>
+      <option value="pl">Polski</option>
+      <option value="tr">Türkçe</option>
+      <option value="de">Deutsch</option>
+      <option value="pt">Português</option>
+      <option value="zh-CN">简体中文</option>
+      <option value="zh-TW">繁體中文</option>
+      <option value="ja">日本語</option>
+      <option value="ko">한국어</option>
+      <option value="vi">Tiếng Việt</option>
+      <option value="th">ไทย</option>
+      <option value="ru">Русский</option>
+      <option value="id">Bahasa Indonesia</option>
+    </select>
   </div>
 
   <!-- Image upload (all variants) -->
@@ -965,6 +1010,30 @@
 
   const DEFAULT_IMG = 'https://market.my.games/s3/media/2024/2/5/948c136d6f04deb375ee67e4a203209d.png';
   let customImgSrc = null;
+  let selectedLang = 'en';
+
+  const TRANSLATIONS = {
+    en:    { title: "Check out best offers in the\nWar Robots' Official Webshop", learnMore: 'Learn more',       claimBonus: 'Claim your bonus',    limitedOffer: 'Limited offer',          countdown: n => `Returning to game in ${n} sec…` },
+    fr:    { title: "Découvrez les meilleures offres\ndans la boutique officielle War Robots", learnMore: 'En savoir plus',    claimBonus: 'Réclamez votre bonus',  limitedOffer: 'Offre limitée',          countdown: n => `Retour au jeu dans ${n} sec…` },
+    es:    { title: "Descubre las mejores ofertas\nen la tienda oficial de War Robots", learnMore: 'Más información',  claimBonus: 'Reclama tu bono',       limitedOffer: 'Oferta limitada',        countdown: n => `Volviendo al juego en ${n} seg…` },
+    pl:    { title: "Sprawdź najlepsze oferty\nw oficjalnym sklepie War Robots", learnMore: 'Dowiedz się więcej', claimBonus: 'Odbierz swój bonus',    limitedOffer: 'Oferta limitowana',      countdown: n => `Powrót do gry za ${n} sek…` },
+    tr:    { title: "War Robots Resmi Mağazasındaki\nen iyi tekliflere göz at", learnMore: 'Daha fazla bilgi',  claimBonus: 'Bonusunu al',           limitedOffer: 'Sınırlı teklif',         countdown: n => `${n} saniye içinde oyuna dönülüyor…` },
+    de:    { title: "Entdecke die besten Angebote\nim offiziellen War Robots Webshop", learnMore: 'Mehr erfahren',     claimBonus: 'Bonus sichern',         limitedOffer: 'Limitiertes Angebot',    countdown: n => `Zurück zum Spiel in ${n} Sek…` },
+    pt:    { title: "Confira as melhores ofertas\nna Loja Oficial de War Robots", learnMore: 'Saiba mais',        claimBonus: 'Resgatar bônus',        limitedOffer: 'Oferta limitada',        countdown: n => `Voltando ao jogo em ${n} seg…` },
+    'zh-CN': { title: "在War Robots官方网店\n查看最优惠活动", learnMore: '了解更多',         claimBonus: '领取奖励',             limitedOffer: '限时优惠',              countdown: n => `${n} 秒后返回游戏…` },
+    'zh-TW': { title: "在War Robots官方網店\n查看最優惠活動", learnMore: '了解更多',         claimBonus: '領取獎勵',             limitedOffer: '限時優惠',              countdown: n => `${n} 秒後返回遊戲…` },
+    ja:    { title: "War Robots公式ウェブショップで\nお得な情報をチェック", learnMore: '詳細を見る',        claimBonus: 'ボーナスを獲得',        limitedOffer: '期間限定',              countdown: n => `${n}秒後にゲームに戻ります…` },
+    ko:    { title: "War Robots 공식 웹샵에서\n최고의 혜택을 확인하세요", learnMore: '자세히 보기',      claimBonus: '보너스 받기',           limitedOffer: '한정 혜택',             countdown: n => `${n}초 후 게임으로 돌아갑니다…` },
+    vi:    { title: "Khám phá ưu đãi tốt nhất\ntại Cửa hàng Chính thức của War Robots", learnMore: 'Tìm hiểu thêm',    claimBonus: 'Nhận thưởng của bạn',   limitedOffer: 'Ưu đãi có hạn',         countdown: n => `Quay lại trò chơi sau ${n} giây…` },
+    th:    { title: "ดูข้อเสนอสุดพิเศษ\nในร้านค้าอย่างเป็นทางการของ War Robots", learnMore: 'เรียนรู้เพิ่มเติม',  claimBonus: 'รับโบนัสของคุณ',       limitedOffer: 'ข้อเสนอจำกัด',         countdown: n => `กลับสู่เกมใน ${n} วินาที…` },
+    ru:    { title: "Смотри лучшие предложения\nв официальном магазине War Robots", learnMore: 'Узнать больше',    claimBonus: 'Забрать бонус',         limitedOffer: 'Ограниченное предложение', countdown: n => `Возврат в игру через ${n} сек…` },
+    id:    { title: "Lihat penawaran terbaik\ndi Toko Resmi War Robots", learnMore: 'Pelajari lebih lanjut', claimBonus: 'Klaim bonusmu',        limitedOffer: 'Penawaran terbatas',     countdown: n => `Kembali ke game dalam ${n} detik…` },
+  };
+
+  function applyLang() {
+    const sel = document.getElementById('langSelect');
+    if (sel) selectedLang = sel.value;
+  }
 
   // Store colors in variables so they survive page innerHTML replacement
   let v3Colors = { btn: '#f97316', text: '#ffffff', urgency: '#f97316' };
@@ -1067,24 +1136,37 @@
     if (selectedVariant === 2) banner.classList.add('v2');
     if (selectedVariant === 3) banner.classList.add('v3');
 
+    const t = TRANSLATIONS[selectedLang] || TRANSLATIONS['en'];
+
+    // Set title (convert \n to <br>)
+    document.querySelector('.promo-title').innerHTML =
+      t.title.replace('\n', '<br>');
+
     // Set button label
     document.getElementById('btnLearnMoreText').textContent =
-      selectedVariant === 3 ? 'Claim your bonus' : 'Learn more';
+      selectedVariant === 3 ? t.claimBonus : t.learnMore;
+
+    // Set urgency label
+    const urgencyText = document.querySelector('.urgency-text');
+    if (urgencyText) urgencyText.textContent = t.limitedOffer;
 
     // Apply custom colors for V3
     if (selectedVariant === 3) applyV3Colors();
+
+    // Apply custom image if set
+    if (customImgSrc) document.querySelector('.promo-img-inner').src = customImgSrc;
 
     banner.classList.add('visible');
 
     let secs = 10;
     const label   = document.getElementById('promoCountdown');
     const labelV3 = document.getElementById('promoCountdownV3');
-    label.textContent   = `Returning to game in ${secs} sec…`;
+    label.textContent   = t.countdown(secs);
     labelV3.textContent = secs;
 
     promoTimer = setInterval(() => {
       secs--;
-      label.textContent   = `Returning to game in ${secs} sec…`;
+      label.textContent   = t.countdown(secs);
       labelV3.textContent = secs;
       if (secs <= 0) {
         clearInterval(promoTimer);
