@@ -881,6 +881,24 @@
 
     .btn-return-game:hover { background: rgba(255,255,255,0.12); color: #fff; }
 
+    /* Hex input */
+    .hex-input {
+      width: 72px;
+      background: #2a2a2a;
+      border: 1px solid #3a3a3a;
+      border-radius: 6px;
+      color: #ddd;
+      font-size: 12px;
+      font-family: monospace;
+      padding: 3px 6px;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    .hex-input:focus { border-color: #5b6ef7; color: #fff; }
+
+    .hex-input.invalid { border-color: #e94560; }
+
     /* Google Pay logo */
     .gpay-logo {
       font-size: 18px;
@@ -946,15 +964,18 @@
   <div class="v3-controls" id="v3Controls">
     <div class="color-row">
       <label>Button color</label>
-      <input type="color" id="clrBtn" value="#f97316" oninput="applyV3Colors()" />
+      <input type="color" id="clrBtn" value="#f97316" oninput="onColorPicker('clrBtn','hexBtn'); applyV3Colors()" />
+      <input type="text" id="hexBtn" class="hex-input" value="#f97316" maxlength="7" oninput="onHexInput('hexBtn','clrBtn'); applyV3Colors()" />
     </div>
     <div class="color-row">
       <label>Button text</label>
-      <input type="color" id="clrBtnText" value="#ffffff" oninput="applyV3Colors()" />
+      <input type="color" id="clrBtnText" value="#ffffff" oninput="onColorPicker('clrBtnText','hexBtnText'); applyV3Colors()" />
+      <input type="text" id="hexBtnText" class="hex-input" value="#ffffff" maxlength="7" oninput="onHexInput('hexBtnText','clrBtnText'); applyV3Colors()" />
     </div>
     <div class="color-row">
       <label>Limited offer</label>
-      <input type="color" id="clrUrgency" value="#f97316" oninput="applyV3Colors()" />
+      <input type="color" id="clrUrgency" value="#f97316" oninput="onColorPicker('clrUrgency','hexUrgency'); applyV3Colors()" />
+      <input type="text" id="hexUrgency" class="hex-input" value="#f97316" maxlength="7" oninput="onHexInput('hexUrgency','clrUrgency'); applyV3Colors()" />
     </div>
   </div>
 
@@ -1086,11 +1107,14 @@
       </div>
       <div class="banner-color-row" id="bannerColorRow" style="display:none">
         <span class="color-lbl">Button</span>
-        <input type="color" id="bannerClrBtn" value="#f97316" oninput="bannerApplyColors()">
+        <input type="color" id="bannerClrBtn" value="#f97316" oninput="onColorPicker('bannerClrBtn','bannerHexBtn'); bannerApplyColors()">
+        <input type="text" id="bannerHexBtn" class="hex-input" value="#f97316" maxlength="7" oninput="onHexInput('bannerHexBtn','bannerClrBtn'); bannerApplyColors()">
         <span class="color-lbl">Text</span>
-        <input type="color" id="bannerClrBtnText" value="#ffffff" oninput="bannerApplyColors()">
+        <input type="color" id="bannerClrBtnText" value="#ffffff" oninput="onColorPicker('bannerClrBtnText','bannerHexBtnText'); bannerApplyColors()">
+        <input type="text" id="bannerHexBtnText" class="hex-input" value="#ffffff" maxlength="7" oninput="onHexInput('bannerHexBtnText','bannerClrBtnText'); bannerApplyColors()">
         <span class="color-lbl">Offer</span>
-        <input type="color" id="bannerClrUrgency" value="#f97316" oninput="bannerApplyColors()">
+        <input type="color" id="bannerClrUrgency" value="#f97316" oninput="onColorPicker('bannerClrUrgency','bannerHexUrgency'); bannerApplyColors()">
+        <input type="text" id="bannerHexUrgency" class="hex-input" value="#f97316" maxlength="7" oninput="onHexInput('bannerHexUrgency','bannerClrUrgency'); bannerApplyColors()">
       </div>
     </div>
     <button class="btn-return-game" onclick="returnToGame()">Return to game</button>
@@ -1138,6 +1162,27 @@
 
   // Store colors in variables so they survive page innerHTML replacement
   let v3Colors = { btn: '#f97316', text: '#ffffff', urgency: '#f97316' };
+
+  // --- Hex <-> color picker sync ---
+  function onColorPicker(colorId, hexId) {
+    const c = document.getElementById(colorId);
+    const h = document.getElementById(hexId);
+    if (c && h) { h.value = c.value; h.classList.remove('invalid'); }
+  }
+
+  function onHexInput(hexId, colorId) {
+    const h = document.getElementById(hexId);
+    const c = document.getElementById(colorId);
+    if (!h || !c) return;
+    const v = h.value.startsWith('#') ? h.value : '#' + h.value;
+    if (/^#[0-9a-fA-F]{6}$/.test(v)) {
+      c.value = v;
+      h.value = v;
+      h.classList.remove('invalid');
+    } else {
+      h.classList.add('invalid');
+    }
+  }
 
   function loadLocalImage(input) {
     if (!input.files || !input.files[0]) return;
@@ -1270,6 +1315,13 @@
       if (bc) bc.value = v3Colors.btn;
       if (bt) bt.value = v3Colors.text;
       if (bu) bu.value = v3Colors.urgency;
+      // Sync hex fields
+      const hb = document.getElementById('bannerHexBtn');
+      const ht = document.getElementById('bannerHexBtnText');
+      const hu = document.getElementById('bannerHexUrgency');
+      if (hb) hb.value = v3Colors.btn;
+      if (ht) ht.value = v3Colors.text;
+      if (hu) hu.value = v3Colors.urgency;
     }
 
     if (customImgSrc) {
@@ -1325,13 +1377,19 @@
     if (bc) v3Colors.btn     = bc.value;
     if (bt) v3Colors.text    = bt.value;
     if (bu) v3Colors.urgency = bu.value;
-    // Sync top-level pickers too
+    // Sync top-level pickers and hex inputs too
     const c1 = document.getElementById('clrBtn');
     const c2 = document.getElementById('clrBtnText');
     const c3 = document.getElementById('clrUrgency');
     if (c1) c1.value = v3Colors.btn;
     if (c2) c2.value = v3Colors.text;
     if (c3) c3.value = v3Colors.urgency;
+    const h1 = document.getElementById('hexBtn');
+    const h2 = document.getElementById('hexBtnText');
+    const h3 = document.getElementById('hexUrgency');
+    if (h1) h1.value = v3Colors.btn;
+    if (h2) h2.value = v3Colors.text;
+    if (h3) h3.value = v3Colors.urgency;
     applyV3Colors();
   }
 </script>
