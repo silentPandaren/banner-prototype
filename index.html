@@ -792,6 +792,95 @@
       background: none;
     }
 
+    /* Banner inline edit controls */
+    .banner-edit {
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .banner-edit-img-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-upload-sm {
+      font-size: 11px;
+      font-weight: 600;
+      color: #aaa;
+      background: rgba(255,255,255,0.08);
+      border-radius: 6px;
+      padding: 4px 10px;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+      white-space: nowrap;
+    }
+
+    .btn-upload-sm:hover { background: rgba(255,255,255,0.14); color: #fff; }
+
+    .btn-reset-sm {
+      background: none;
+      border: none;
+      color: #555;
+      font-size: 13px;
+      cursor: pointer;
+      padding: 2px 4px;
+      transition: color 0.15s;
+    }
+
+    .btn-reset-sm:hover { color: #fff; }
+
+    .banner-img-name {
+      font-size: 11px;
+      color: #666;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      max-width: 140px;
+    }
+
+    .banner-color-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .color-lbl {
+      font-size: 11px;
+      color: #666;
+    }
+
+    .banner-color-row input[type="color"] {
+      width: 30px;
+      height: 22px;
+      border: none;
+      border-radius: 5px;
+      padding: 0;
+      cursor: pointer;
+      background: none;
+    }
+
+    .btn-return-game {
+      width: 100%;
+      background: rgba(255,255,255,0.07);
+      color: #888;
+      border: none;
+      border-radius: 20px;
+      padding: 12px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      margin-top: 6px;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .btn-return-game:hover { background: rgba(255,255,255,0.12); color: #fff; }
+
     /* Google Pay logo */
     .gpay-logo {
       font-size: 18px;
@@ -987,12 +1076,24 @@
         </svg>
       </span>
     </button>
-    <div class="promo-countdown" id="promoCountdown">Returning to game in 10 sec…</div>
-    <div class="promo-countdown-row">
-      <span class="countdown-label">Returning to game in</span>
-      <span class="countdown-timer" id="promoCountdownV3">10</span>
-      <span class="countdown-label">sec</span>
+    <!-- Inline edit controls on banner -->
+    <div class="banner-edit">
+      <div class="banner-edit-img-row">
+        <label class="btn-upload-sm" for="bannerImgUpload">Image</label>
+        <input type="file" id="bannerImgUpload" accept="image/*" onchange="bannerLoadImage(this)" style="display:none">
+        <button class="btn-reset-sm" id="bannerBtnReset" onclick="bannerResetImage()" style="display:none">✕</button>
+        <span class="banner-img-name" id="bannerImgName"></span>
+      </div>
+      <div class="banner-color-row" id="bannerColorRow" style="display:none">
+        <span class="color-lbl">Button</span>
+        <input type="color" id="bannerClrBtn" value="#f97316" oninput="bannerApplyColors()">
+        <span class="color-lbl">Text</span>
+        <input type="color" id="bannerClrBtnText" value="#ffffff" oninput="bannerApplyColors()">
+        <span class="color-lbl">Offer</span>
+        <input type="color" id="bannerClrUrgency" value="#f97316" oninput="bannerApplyColors()">
+      </div>
     </div>
+    <button class="btn-return-game" onclick="returnToGame()">Return to game</button>
   </div>
 </div>
 
@@ -1158,27 +1259,80 @@
 
     banner.classList.add('visible');
 
-    let secs = 10;
-    const label   = document.getElementById('promoCountdown');
-    const labelV3 = document.getElementById('promoCountdownV3');
-    label.textContent   = t.countdown(secs);
-    labelV3.textContent = secs;
+    // Sync inline edit controls
+    const bannerColorRow = document.getElementById('bannerColorRow');
+    if (bannerColorRow) bannerColorRow.style.display = selectedVariant === 3 ? 'flex' : 'none';
 
-    promoTimer = setInterval(() => {
-      secs--;
-      label.textContent   = t.countdown(secs);
-      labelV3.textContent = secs;
-      if (secs <= 0) {
-        clearInterval(promoTimer);
-        location.reload();
-      }
-    }, 1000);
+    if (selectedVariant === 3) {
+      const bc = document.getElementById('bannerClrBtn');
+      const bt = document.getElementById('bannerClrBtnText');
+      const bu = document.getElementById('bannerClrUrgency');
+      if (bc) bc.value = v3Colors.btn;
+      if (bt) bt.value = v3Colors.text;
+      if (bu) bu.value = v3Colors.urgency;
+    }
+
+    if (customImgSrc) {
+      const resetBtn = document.getElementById('bannerBtnReset');
+      if (resetBtn) resetBtn.style.display = 'inline';
+    }
   }
 
   function promoDone() {
-    clearInterval(promoTimer);
     window.open('https://market.my.games/games/163', '_blank');
+  }
+
+  function returnToGame() {
     location.reload();
+  }
+
+  // --- Banner inline edit controls ---
+  function bannerLoadImage(input) {
+    if (!input.files || !input.files[0]) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      customImgSrc = e.target.result;
+      document.querySelector('.promo-img-inner').src = customImgSrc;
+      document.getElementById('bannerBtnReset').style.display = 'inline';
+      const nameEl = document.getElementById('bannerImgName');
+      if (nameEl) nameEl.textContent = input.files[0].name.slice(0, 18) + (input.files[0].name.length > 18 ? '…' : '');
+      // Also sync the top-level upload controls
+      document.getElementById('btnResetImg').style.display = 'inline';
+      const uploadLabel = document.querySelector('.btn-upload');
+      if (uploadLabel) uploadLabel.textContent = input.files[0].name.slice(0, 16) + (input.files[0].name.length > 16 ? '…' : '');
+    };
+    reader.readAsDataURL(input.files[0]);
+  }
+
+  function bannerResetImage() {
+    customImgSrc = null;
+    document.querySelector('.promo-img-inner').src = DEFAULT_IMG;
+    document.getElementById('bannerImgUpload').value = '';
+    document.getElementById('bannerBtnReset').style.display = 'none';
+    const nameEl = document.getElementById('bannerImgName');
+    if (nameEl) nameEl.textContent = '';
+    // Also sync the top-level upload controls
+    document.getElementById('imgUpload').value = '';
+    document.getElementById('btnResetImg').style.display = 'none';
+    const uploadLabel = document.querySelector('.btn-upload');
+    if (uploadLabel) uploadLabel.textContent = 'Choose file';
+  }
+
+  function bannerApplyColors() {
+    const bc = document.getElementById('bannerClrBtn');
+    const bt = document.getElementById('bannerClrBtnText');
+    const bu = document.getElementById('bannerClrUrgency');
+    if (bc) v3Colors.btn     = bc.value;
+    if (bt) v3Colors.text    = bt.value;
+    if (bu) v3Colors.urgency = bu.value;
+    // Sync top-level pickers too
+    const c1 = document.getElementById('clrBtn');
+    const c2 = document.getElementById('clrBtnText');
+    const c3 = document.getElementById('clrUrgency');
+    if (c1) c1.value = v3Colors.btn;
+    if (c2) c2.value = v3Colors.text;
+    if (c3) c3.value = v3Colors.urgency;
+    applyV3Colors();
   }
 </script>
 </body>
